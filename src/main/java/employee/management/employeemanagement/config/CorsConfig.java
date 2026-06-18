@@ -4,18 +4,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Allows the Angular dev server (http://localhost:4200) to call this API.
- * Without this, the browser blocks every request from the frontend with a
- * CORS error before it even reaches EmployeeController.
- */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+
+        // Read deployed frontend URL from env var set on Render
+        String frontendUrl = System.getenv("https://employeerecords-frontend.onrender.com");
+
+        String[] allowedOrigins = (frontendUrl != null && !frontendUrl.isBlank())
+                ? new String[]{"http://localhost:4200", frontendUrl}
+                : new String[]{"http://localhost:4200"};
+
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:4200")
+                .allowedOrigins(allowedOrigins)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
     }
